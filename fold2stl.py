@@ -16,7 +16,6 @@ import numpy
 # https://github.com/thearn/stl_tools
 from optparse import OptionParser,OptionGroup
 from scipy.ndimage import gaussian_filter
-from pylab import imread
 from PIL import ImageDraw, ImageFont
 from PIL import Image
 
