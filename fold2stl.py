@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""
+Example usage:
+python fold2stl.py --phase=0.3 --height=200 --smooth=1 --subtract --tmax=500 --text --fontsize=16 --fontname="/Library/Fonts/Arial Black.tt" J0034-0721.rf
+
+"""
+
+
+
 from astropy.io import fits
 import sys,os
 import scipy.misc
@@ -15,8 +23,17 @@ from PIL import Image
 _version_=0.1
 
 
-def text2array(text, fontsize=16):
-    font = ImageFont.truetype('/Library/Fonts/Arial Black.ttf', fontsize)
+######################################################################
+def text2array(text, fontname=None, fontsize=16):
+    if fontname is None:
+        font=ImageFont.load_default()
+    else:
+        try:
+            font = ImageFont.truetype(fontname, fontsize)
+        except:
+            sys.stderr.write('Unable to find font %s\n' % fontname)
+            font=ImageFont.load_default()
+
     img = Image.new('RGB', (200, 100))
     dr = ImageDraw.Draw(img)
     dr.text((0, 0), text, fill=(255, 0, 0), font=font)
@@ -27,15 +44,18 @@ def text2array(text, fontsize=16):
     textdata=numpy.array(img).mean(axis=2)
     return textdata
 
-def fold2stl(filename, height=0.2, phase=1, size=1, smooth=0, subtract=False, tmax=None, dotext=False):
+######################################################################
+def fold2stl(filename, height=0.2, phase=1, size=1, smooth=0, subtract=False, tmax=None, dotext=False,
+             fontsize=16, fontname=None):
     """
-    stlfile=fold2stl(filename, height=0.2, phase=1, size=1, smooth=0, subtract=False, tmax=None, dotext=False)
+    stlfile=fold2stl(filename, height=0.2, phase=1, size=1, smooth=0, subtract=False, tmax=None, dotext=False,
+             fontsize=16, fontname=None)
     """
     
     try:
         f=fits.open(filename)
     except Exception,e:
-        print 'Unable to open file %s: %s' % (filename,e)
+        sys.stderr.write('Unable to open file %s: %s\n' % (filename,e))
         return None
     
 
@@ -72,7 +92,7 @@ def fold2stl(filename, height=0.2, phase=1, size=1, smooth=0, subtract=False, tm
                                                                     f[0].header['TELESCOP'],
                                                                     f[0].header['OBSERVER'],
                                                                     f[0].header['DATE-OBS'].split('T')[0])    
-        textarray=text2array(text)/255
+        textarray=text2array(text, fontsize=fontsize, fontname=fontname)/255
         data[:textarray.shape[1],:textarray.shape[0]]*=numpy.fliplr(textarray.T)
     
     if os.path.exists(outfile):
@@ -109,22 +129,32 @@ def main():
     parser.add_option('--text',dest='text',default=False,
                       action="store_true",
                       help='Include text?')
+    parser.add_option('--fontsize',dest='fontsize',default=16,type='int',
+                      help="Font size for text [default=%default]")
+    parser.add_option('--fontname',dest='fontname',default=None,
+                      type='str',
+                      help="Font name for text")
     
     (options, args) = parser.parse_args()
     if len(args)==0:
-        print "Must supply >=1 FITS files"
+        sys.stderr.write("Must supply >=1 FITS files\n")
         sys.exit(-1)
     for file in args:
         if not os.path.exists(file):
-            print 'File %s does not exist' % file
+            sys.stderr.write('File %s does not exist\n' % file)
             sys.exit(-1)
+        if options.text and (options.fontname is not None and not os.path.exists(options.fontname)):
+            sys.stderr.write('Font file %s does not exist; will use default\n' % options.fontname)
+            options.fontname=None
         out=fold2stl(file, height=options.height,
                      phase=options.phase,
                      size=options.size,
                      smooth=options.smooth,
                      subtract=options.subtract,
                      tmax=options.tmax,
-                     dotext=options.text)
+                     dotext=options.text,
+                     fontsize=options.fontsize,
+                     fontname=options.fontname)
         
         
 ######################################################################
