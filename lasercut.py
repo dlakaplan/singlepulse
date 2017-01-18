@@ -224,17 +224,17 @@ class LaserCutSheet():
             for col in xrange(ncols):
                 for row in xrange(nrows):
                     try:
-                        y=numpy.float32(data[i])/1.05/data.max()+0.1
+                        y=numpy.float32(data[i])/1.05/data.max()+rcircle
                         x0=self.padding+col*(size+self.padding)
                         y0=self.padding+row*(size+self.padding)
                         if color is None or color==self.colors.cut:
                             self.axes.plot(x0+size*numpy.r_[x,x.max(),x.min(),x.min()],
                                            y0+size*numpy.r_[y,0,0,y[0]],color=self.colors.cut)
                             self.axes.plot(x0+size/6.+rcircle*numpy.cos(theta),
-                                           y0+size/20.+rcircle*numpy.sin(theta),
+                                           y0+2*rcircle+rcircle*numpy.sin(theta),
                                            color=self.colors.cut)
                             self.axes.plot(x0+size-size/6.+rcircle*numpy.cos(theta),
-                                           y0+size/20.+rcircle*numpy.sin(theta),
+                                           y0++2*rcircle+rcircle*numpy.sin(theta),
                                            color=self.colors.cut)
                         if color is None or color==self.colors.engrave:
                             self.axes.text(x0+0.02*size,
