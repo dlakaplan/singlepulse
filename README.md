@@ -22,7 +22,8 @@ Requirements:
 * scipy
 * matplotlib
 
-As an example, to make a series of monochrome PDFs out of a PSRFITS file:
+# fold2laminate.py
+This is an example to make a series of monochrome PDFs out of a PSRFITS file:
 ```python
 import lasercut
 
@@ -38,6 +39,9 @@ for color in ['Cyan','Red','#ff7f00','Magenta','Green']:
 
     sheet.plotprofile(filename, size=3.72, color=color)
 ```
+
+# profile2plaque.py
+This is an example to make plaques.
 
 # basic_units.py
 This is just a clone of matplotlib/examples/units/basic_units.py
